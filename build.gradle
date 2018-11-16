@@ -1,0 +1,22 @@
+apply plugin: 'java-library'
+apply plugin: 'eclipse'
+
+eclipse {
+  jdt {
+    sourceCompatibility = 1.5
+    targetCompatibility = 1.5
+    javaRuntimeName = "J2SE-1.5"
+  }
+}
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+    api 'org.locationtech.jts:jts-core:1.15.0'
+	api 'org.slf4j:slf4j-api:1.7.25'
+
+    testImplementation 'junit:junit:4.12'
+}
+
