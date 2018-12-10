@@ -1,11 +1,10 @@
 package com.sinergise.geometry.crs.sitrans96;
 
-import static java.lang.Double.parseDouble;
-
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
+import java.nio.ByteBuffer;
+import java.nio.DoubleBuffer;
+import java.nio.channels.Channels;
 import java.util.ArrayList;
 
 import org.locationtech.jts.geom.Coordinate;
@@ -13,41 +12,31 @@ import org.locationtech.jts.geom.Coordinate;
 import com.sinergise.geometry.crs.util.Util;
 
 public class TriangularTransformationTinFromFileLoader {
-	private static final String FNAME_TRANS_POINTS = "/GK2TM_VVT4.csv";
+	private static final String FNAME_TRANS_POINTS_BIN = "/GK2TM_VVT4.bin";
 
-	public static TriangleFromTinProvider loadTin() {
-		return new TriangleFromTinProvider(loadPointDataFromFile());
+	public static TriangleProvider loadTin() {
+		return new TriangleProvider(loadPointDataFromFile());
 	}
 
 	private static TriangularTransformationPoint[] loadPointDataFromFile() {
 		ArrayList<TriangularTransformationPoint> ret = new ArrayList<TriangularTransformationPoint>(1000);
-
-		LineNumberReader rdr = null;
 		InputStream is = null;
+
 		try {
-			is = TriangularTransformationTinFromFileLoader.class.getResourceAsStream(FNAME_TRANS_POINTS);
-			rdr = new LineNumberReader(new InputStreamReader(is));
-
-			String curLine;
-			while ((curLine = rdr.readLine()) != null) {
-				ret.add(readPointFromLine(curLine));
+			is = TriangularTransformationTinFromFileLoader.class.getResourceAsStream(FNAME_TRANS_POINTS_BIN);
+			ByteBuffer buf = ByteBuffer.allocate(is.available());
+			Channels.newChannel(is).read(buf);
+			buf.rewind();
+			DoubleBuffer dbuf = buf.asDoubleBuffer();
+			while (dbuf.hasRemaining()) {
+				ret.add(new TriangularTransformationPoint(new Coordinate(dbuf.get(), dbuf.get()),
+						new Coordinate(dbuf.get(), dbuf.get())));
 			}
-
 			return ret.toArray(new TriangularTransformationPoint[ret.size()]);
-		} catch(IOException e) {
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} finally {
-			Util.closeSilent(rdr, is);
+			Util.closeSilent(is);
 		}
-	}
-
-	private static TriangularTransformationPoint readPointFromLine(String curLine) {
-		String[] parts = curLine.trim().split("\\s+");
-
-		double gkE = parseDouble(parts[3]);
-		double gkN = parseDouble(parts[4]);
-		double d96e = parseDouble(parts[1]);
-		double d96n = parseDouble(parts[2]);
-		return new TriangularTransformationPoint(new Coordinate(gkE, gkN), new Coordinate(d96e, d96n));
 	}
 }

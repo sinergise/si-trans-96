@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.text.DecimalFormat;
 
+import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
 
 public class TestTriangularTransformerSpeed {
@@ -13,6 +14,7 @@ public class TestTriangularTransformerSpeed {
 		new TestTriangularTransformerSpeed().testSpeedLocal();
 	}
 
+	@Test
 	public void testSpeedLocal() {
 		testSpeed(1, 500000000);
 		testSpeed(100, 50000);
@@ -66,6 +68,35 @@ public class TestTriangularTransformerSpeed {
 		System.out.println("Point distance " + ptDist + " m :" + formatNanoTime(nanosPerPoint) + "/pt "+ (1000000000L/nanosPerPoint) + " pt/s  ["+sum+"]");
 	}
 
+	private static Coordinate[] preparePoints(double ptDist, final int cnt) {
+		Coordinate[] dta = new Coordinate[cnt];
+		double rndX = 500e3;
+		double rndY = 150e3;
+		for (int i = 0; i < cnt; i++) {
+			rndX += ptDist * (2 * random() - 1);
+			rndY += ptDist * (2 * random() - 1);
+	
+			if (rndX > 650e3) {
+				rndX -= 150e3;
+			} else if (rndX < 350e3) {
+				rndX += 150e3;
+			}
+	
+			if (rndY > 300e3) {
+				rndY -= 150e3;
+			} else if (rndY < 0) {
+				rndY += 150e3;
+			}
+			dta[i] = new Coordinate(rndX, rndY);
+		}
+		return dta;
+	}
+
+	private static double trans(Coordinate pos) {
+		Coordinate ret = SiTrans96.d48gk_to_d96tm(pos);
+		return ret.x + ret.y; 
+	}
+
 	private static String formatNanoTime(long nanos) {
 		double amount = nanos;
 		String[] prefixes = {"n","µ","m",""};
@@ -75,34 +106,5 @@ public class TestTriangularTransformerSpeed {
 			idx++; 
 		}
 		return DecimalFormat.getInstance().format(amount)+" "+prefixes[idx]+"s";
-	}
-
-	private static double trans(Coordinate pos) {
-		Coordinate ret = SiTrans96.d48gk_to_d96tm(pos);
-		return ret.x + ret.y; 
-	}
-
-	private static Coordinate[] preparePoints(double ptDist, final int cnt) {
-		Coordinate[] dta = new Coordinate[cnt];
-		double rndX = 500e3;
-		double rndY = 150e3;
-		for (int i = 0; i < cnt; i++) {
-			rndX += ptDist * (2 * random() - 1);
-			rndY += ptDist * (2 * random() - 1);
-
-			if (rndX > 650e3) {
-				rndX -= 150e3;
-			} else if (rndX < 350e3) {
-				rndX += 150e3;
-			}
-
-			if (rndY > 300e3) {
-				rndY -= 150e3;
-			} else if (rndY < 0) {
-				rndY += 150e3;
-			}
-			dta[i] = new Coordinate(rndX, rndY);
-		}
-		return dta;
 	}
 }

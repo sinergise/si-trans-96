@@ -20,6 +20,12 @@ import com.sinergise.geometry.crs.util.SimpleTransform;
  * 
  */
 public class SiTrans96 {
+	static final TriangleProvider TIN_D48GK;
+	static final TriangleProvider TIN_D96TM;
+	static {
+		TIN_D48GK = TriangularTransformationTinFromFileLoader.loadTin();
+		TIN_D96TM = TIN_D48GK.inverse();
+	}
 
 	public static class D48gkToD96tmTriangular implements SimpleTransform {
 		public Coordinate transformPoint(Coordinate pos) {
@@ -31,14 +37,6 @@ public class SiTrans96 {
 		public Coordinate transformPoint(Coordinate pos) {
 			return TIN_D96TM.getTriangleAt(pos).transformPoint(pos);
 		}
-	}
-
-	static final TriangleProvider TIN_D48GK;
-	static final TriangleProvider TIN_D96TM;
-	static {
-		TriangleFromTinProvider srcProvider = TriangularTransformationTinFromFileLoader.loadTin();
-		TIN_D48GK = new CachingTriangleProvider(srcProvider);
-		TIN_D96TM = new CachingTriangleProvider(srcProvider.inverse());
 	}
 
 	public static final SimpleTransform D48GK_TO_D96TM_TRIANGULAR = new D48gkToD96tmTriangular();
@@ -58,9 +56,5 @@ public class SiTrans96 {
 
 	public static Coordinate d96tm_to_d48gk(Coordinate pos) {
 		return D96TM_TO_D48GK_TRIANGULAR.transformPoint(pos);
-	}
-	
-	public static void main(String[] args) {
-		System.out.println(d48gk_to_d96tm(350394, 142349));
 	}
 }

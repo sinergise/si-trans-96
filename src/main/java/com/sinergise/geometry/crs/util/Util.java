@@ -2,12 +2,11 @@ package com.sinergise.geometry.crs.util;
 
 import java.io.Closeable;
 import java.io.IOException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Util {
-	private static final Logger logger = LoggerFactory.getLogger(Util.class); 
+	private static Logger logger = Logger.getLogger("com.sinergise.geometry.crs.util.Util");
 	
 	public static final void close(Closeable resource) throws IOException {
 		if (resource != null) {
@@ -21,7 +20,7 @@ public class Util {
 				close(r);
 			} catch (Throwable t) {
 				// be quiet
-				logger.warn("Error while closing resource {}", r, t);
+				logger.log(Level.WARNING, "Error while closing resource "+r, t);
 			}
 		}
 	}
