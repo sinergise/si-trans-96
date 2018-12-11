@@ -52,6 +52,7 @@ public class TinFromCsvLoader {
 			while ((curLine = rdr.readLine()) != null) {
 				ret.add(readPointFromLine(curLine));
 			}
+			System.out.println("# CSV Points Loaded: "+ret.size());
 			return ret.toArray(new TriangularTransformationPoint[ret.size()]);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
